@@ -10,7 +10,7 @@ public class CustomiseInspector : NeosMod
 {
     public override string Name => "Customise-Inspector";
     public override string Author => "LeCloutPanda";
-    public override string Version => "1.1.0";
+    public override string Version => "1.1.1";
 
     public static ModConfiguration config;
 
@@ -33,13 +33,13 @@ public class CustomiseInspector : NeosMod
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<float> SPLIT_RATIO = new ModConfigurationKey<float>("Split Ratio", "", () => 0.4f);
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<string> FOREGROUND_IMAGE = new ModConfigurationKey<string>("Foreground Image", "", () => "https://raw.githubusercontent.com/LeCloutPanda/Inspector-Customizer/main/1x1-00000000.png");
+    private static ModConfigurationKey<string> FOREGROUND_IMAGE = new ModConfigurationKey<string>("Foreground Image", "", () => "neosdb:///63ef318d96b5d0d0ceba6e04a4e622b1158335cdc67c49e27839132c6f655058.png");
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> FOREGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Foreground Image Color", "", () => new color(0f));
+    private static ModConfigurationKey<color> FOREGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Foreground Image Color", "", () => new color(0f, 0f));
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<string> BACKGROUND_IMAGE = new ModConfigurationKey<string>("Background Image", "", () => "https://raw.githubusercontent.com/LeCloutPanda/Inspector-Customizer/main/1x1-00000000.png");
+    private static ModConfigurationKey<string> BACKGROUND_IMAGE = new ModConfigurationKey<string>("Background Image", "", () => "neosdb:///63ef318d96b5d0d0ceba6e04a4e622b1158335cdc67c49e27839132c6f655058.png");
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> BACKGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Background Image Color", "", () => new color(0f));
+    private static ModConfigurationKey<color> BACKGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Background Image Color", "", () => new color(0f, 0f));
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<float2> CANVAS_SIZE = new ModConfigurationKey<float2>("Canvas Size", "", () => new float2(1000, 2000));
     [AutoRegisterConfigKey]
@@ -60,14 +60,11 @@ public class CustomiseInspector : NeosMod
         [HarmonyPrefix]
         static void Prefix(InspectorPanel __instance)
         {
-            // Skip over this code if the user disables the recolor
             if (!config.GetValue(ENABLED))
                 return;
 
-            // Set the panel name
             __instance.Slot.Name = "Custom Inspector Panel";
 
-            // Add a assets slot for what ever is needed
             Slot Assets = __instance.Slot.AddSlot("Assets");
             Assets.Tag = "Customise.Assets";
         }
@@ -75,19 +72,11 @@ public class CustomiseInspector : NeosMod
         [HarmonyPostfix]
         static void Postfix(InspectorPanel __instance)
         {
-            // Skip over this code if the user disables the recolor
-            if (!config.GetValue(ENABLED))
+            if (!config.GetValue(ENABLED) && __instance.Slot.Name != "Custom Inspector Panel")
                 return;
 
-            // Makes sure this isn't done on others panels
-            if (__instance.Slot.Name != "Custom Inspector Panel")
-                return;
-
-            //Scale Inspector based on scaler
             __instance.Slot.GlobalScale = __instance.Slot.GlobalScale * config.GetValue(SPAWN_SCALE);
 
-            // Generic grab panel items and do the funnies 
-            // From here
             Slot panelSlot = __instance.Slot.FindChild(ch => ch.Name.Equals("Panel"), 1);
             Slot handleSlot = __instance.Slot.FindChild(ch => ch.Name.Equals("Handle"), 1);
             Slot titleMeshSlot = __instance.Slot.FindChild(ch => ch.Name.Equals("Title Mesh"), 2);
@@ -96,7 +85,6 @@ public class CustomiseInspector : NeosMod
             Slot assetsSlot = __instance.Slot.FindChild(ch => ch.Tag.Equals("Customise.Assets"));
 
             PBS_RimMetallic newMaterial = assetsSlot.AttachComponent<PBS_RimMetallic>(true, null);
-            // Stupid RimMetallic Stuff
             newMaterial.OffsetFactor.Value = 1;
             newMaterial.OffsetUnits.Value = 1;
             newMaterial.ForceZWrite.Value = true;
@@ -111,30 +99,26 @@ public class CustomiseInspector : NeosMod
             DoFunny(panelSlot, newMaterial, enableBlur);
             DoFunny(handleSlot, newMaterial, enableBlur);
             DoFunny(titleMeshSlot, newMaterial, enableBlur);
-            // To here ^
 
-            // Add background image
-            AddBackgroundImage(__instance.Slot, contentSlot.GetComponent<Canvas>());
+            if (config.GetValue(BACKGROUND_IMAGE) != null || config.GetValue(BACKGROUND_IMAGE) != "" || config.GetValue(BACKGROUND_IMAGE) != " ")
+                AddBackgroundImage(__instance.Slot, contentSlot.GetComponent<Canvas>());
 
-            // Set title text color
             TextRenderer textRenderer = titleTextSlot.GetComponents<TextRenderer>(null, false)[0];
             textRenderer.Color.Value = config.GetValue(TITLE_COLOR);
 
-            // Grabbing the background of the panel and adding a sprite to the image component for custom backgrounds
             Slot imageSlot = contentSlot[0];
             Image image = imageSlot.GetComponent<Image>();
             SpriteProvider spriteProvider = imageSlot.AttachSprite(new Uri(config.GetValue(FOREGROUND_IMAGE)), true, false, true, null);
             image.Tint.Value = config.GetValue(FOREGROUND_IMAGE_COLOR);
-            image.Sprite.Target = spriteProvider;
+            if (config.GetValue(FOREGROUND_IMAGE) != null || config.GetValue(FOREGROUND_IMAGE) != "" || config.GetValue(FOREGROUND_IMAGE) != " ")
+                image.Sprite.Target = spriteProvider;
 
-            // Renaming the Left Split and changing the color and split ratio
             Slot leftSplit = imageSlot.FindChild(ch => ch.Name.Equals("Split"), 1);
             leftSplit.Name = "Left Split";
             leftSplit = imageSlot.FindChild(ch => ch.Name.Equals("Left Split"), 1);
             leftSplit.GetAllChildren()[0].GetComponent<Image>().Tint.Value = config.GetValue(LEFT_SPLIT_COLOR);
             leftSplit.GetComponent<RectTransform>().AnchorMax.Value = new BaseX.float2(config.GetValue(SPLIT_RATIO), 1);
 
-            // Same as Left Split but for the right
             Slot rightSplit = imageSlot.FindChild(ch => ch.Name.Equals("Split"), 1);
             rightSplit.Name = "Right Split";
             rightSplit = imageSlot.FindChild(ch => ch.Name.Equals("Right Split"), 1);

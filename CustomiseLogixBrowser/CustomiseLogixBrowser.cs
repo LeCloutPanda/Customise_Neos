@@ -13,7 +13,7 @@ namespace CustomiseLogixBrowser
     {
         public override string Name => "Customise-LogixBrowser";
         public override string Author => "LeCloutPanda";
-        public override string Version => "1.1.0";
+        public override string Version => "1.1.1";
 
         public static ModConfiguration config;
 
@@ -30,9 +30,9 @@ namespace CustomiseLogixBrowser
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<bool> BLUR_ENABLED = new ModConfigurationKey<bool>("Enable Blur Material", "", () => true);
         [AutoRegisterConfigKey]
-        private static ModConfigurationKey<string> BACKGROUND_IMAGE = new ModConfigurationKey<string>("Background Image", "", () => "https://raw.githubusercontent.com/LeCloutPanda/Inspector-Customizer/main/1x1-00000000.png");
+        private static ModConfigurationKey<string> BACKGROUND_IMAGE = new ModConfigurationKey<string>("Background Image", "", () => "neosdb:///63ef318d96b5d0d0ceba6e04a4e622b1158335cdc67c49e27839132c6f655058.png");
         [AutoRegisterConfigKey]
-        private static ModConfigurationKey<color> BACKGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Background Image Color", "", () => new color(0f));
+        private static ModConfigurationKey<color> BACKGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Background Image Color", "", () => new color(0f, 0f));
         //[AutoRegisterConfigKey]
         //private static ModConfigurationKey<float3> BACKGROUND_IMAGE_ROTATION = new ModConfigurationKey<float3>("Background Image Rotation", "", () => new float3(0f, 0f, 0f));
         [AutoRegisterConfigKey]

@@ -4,10 +4,10 @@
 *.dll
 *.dll
 *.config
-CustomiseInspector/.vs/CustomiseInspector/v17/.suo
 *.cache
 *.txt
 *.CopyComplete
+CustomiseInspector/.vs/CustomiseInspector/v17/.suo
 CustomiseInspector/obj/Debug/.NETFramework,Version=v4.7.2.AssemblyAttributes.cs
 CustomiseInspector/Properties/AssemblyInfo.cs
 CustomiseLogixBrowser/.vs/CustomiseLogixBrowser/v17/.suo
