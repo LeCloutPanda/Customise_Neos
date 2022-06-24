@@ -5,6 +5,7 @@ using HarmonyLib;
 using NeosModLoader;
 using System;
 using System.Collections.Generic;
+using static FrooxEngine.UIX.Slider<float>;
 
 public class CustomiseInspector : NeosMod
 {
@@ -27,12 +28,20 @@ public class CustomiseInspector : NeosMod
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<float> MAIN_METALIC = new ModConfigurationKey<float>("Main Metalic Amount", "", () => 0.5f);
     [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> MAIN_RIM_COLOR = new ModConfigurationKey<color>("Main Rim Color", "", () => new color(0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<float> MAIN_RIM_INTENSITY = new ModConfigurationKey<float>("Main Rim Intensity", "", () => 0f);
+    [AutoRegisterConfigKey]
     private static ModConfigurationKey<bool> MAIN_BLUR_ENABLED = new ModConfigurationKey<bool>("Main Blur Enabled", "", () => true);
     //Handle and Header Panel
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<color> SECONDARY_ALBEDO = new ModConfigurationKey<color>("Secondary Albedo Color", "", () => new color(1f, 0.87f, 0.55f, 0.2f));
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<float> SECONDARY_METALIC = new ModConfigurationKey<float>("Secondary Metalic Amount", "", () => 0.5f);
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> SECONDARY_RIM_COLOR = new ModConfigurationKey<color>("Secondary Rim Color", "", () => new color(0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<float> SECONDARY_RIM_INTENSITY = new ModConfigurationKey<float>("Secondary Rim Intensity", "", () => 0f);
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<bool> SECONDARY_BLUR_ENABLED = new ModConfigurationKey<bool>("Secondary Blur Enabled", "", () => true);
     
@@ -65,6 +74,10 @@ public class CustomiseInspector : NeosMod
     private static ModConfigurationKey<float2> CANVAS_SIZE = new ModConfigurationKey<float2>("Canvas Size", "", () => new float2(1000, 2000));
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<float> SPAWN_SCALE = new ModConfigurationKey<float>("Spawn Scale Multiplier", "", () => 1);
+
+    // Sroller
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<bool> SCROLL_ENABLED = new ModConfigurationKey<bool>("Scroll bar Enabled", "", () => true);
 
     public override void OnEngineInit()
     {
@@ -112,8 +125,10 @@ public class CustomiseInspector : NeosMod
             newMaterial1.Transparent.Value = true;
             newMaterial1.RenderQueue.Value = 2995;
             newMaterial1.AlbedoColor.Value = config.GetValue(MAIN_ALBEDO);
-            newMaterial1.RimColor.Value = new color(0f, 0f);
+            newMaterial1.RimColor.Value = config.GetValue(MAIN_RIM_COLOR);
+            newMaterial1.RimPower.Value = config.GetValue(MAIN_RIM_INTENSITY);
             newMaterial1.Metallic.Value = config.GetValue(MAIN_METALIC);
+
 
             PBS_RimMetallic newMaterial2 = assetsSlot.AttachComponent<PBS_RimMetallic>(true, null);
             newMaterial2.OffsetFactor.Value = 1;
@@ -122,7 +137,8 @@ public class CustomiseInspector : NeosMod
             newMaterial2.Transparent.Value = true;
             newMaterial2.RenderQueue.Value = 2995;
             newMaterial2.AlbedoColor.Value = config.GetValue(SECONDARY_ALBEDO);
-            newMaterial2.RimColor.Value = new color(0f, 0f);
+            newMaterial2.RimColor.Value = config.GetValue(SECONDARY_RIM_COLOR);
+            newMaterial2.RimPower.Value = config.GetValue(SECONDARY_RIM_INTENSITY);
             newMaterial2.Metallic.Value = config.GetValue(SECONDARY_METALIC);
 
             bool enableBlur1 = config.GetValue(MAIN_BLUR_ENABLED);
@@ -131,6 +147,7 @@ public class CustomiseInspector : NeosMod
             DoFunny(panelSlot, newMaterial1, enableBlur1);
             DoFunny(handleSlot, newMaterial2, enableBlur2);
             DoFunny(titleMeshSlot, newMaterial2, enableBlur2);
+
 
             if (config.GetValue(BACKGROUND_IMAGE_ENABLED))
             {
@@ -163,6 +180,42 @@ public class CustomiseInspector : NeosMod
             rightSplit.GetAllChildren()[0].GetComponent<Image>().Tint.Value = config.GetValue(RIGHT_SPLIT_COLOR);
             rightSplit.GetComponent<RectTransform>().AnchorMin.Value = new float2(config.GetValue(SPLIT_RATIO), 0);
 
+            if (config.GetValue(SCROLL_ENABLED))
+            {
+                rightSplit.GetComponent<RectTransform>().AnchorMax.Value = new float2(0.97f, 1f);
+                Slot sliderParent = imageSlot.AddSlot("Slider Parent");
+                RectTransform sliderParentRect = sliderParent.AttachComponent<RectTransform>();
+                sliderParentRect.AnchorMin.Value = new float2(0.97f, 0);
+
+                Slot slider = sliderParent.AddSlot("Slider");
+                RectTransform sliderRect = slider.AttachComponent<RectTransform>();
+                sliderRect.OffsetMin.Value = new float2(15f, 20f);
+                sliderRect.OffsetMax.Value = new float2(0f, -15f);
+
+                Slot handle = slider.AddSlot("Handle");
+                handle.AttachComponent<Image>();
+                // RectTransform handleRect = slider.AttachComponent<RectTransform>();
+                RectTransform handleRect = handle.GetComponent<RectTransform>();
+                handle.RunInUpdates(3, () =>
+                {
+                    handleRect.OffsetMin.Value = new float2(-20f, -20f);
+                    handleRect.OffsetMax.Value = new float2(15f, 15f);
+                });
+
+                Slider<float> sliderComp = slider.AttachComponent<Slider<float>>();
+                sliderComp.SlideDirection.Value = Slider<float>.Direction.Vertical;   
+                sliderComp.AnchorOffset.Value = new float2(0.5f, 0f);
+                sliderComp.Value.Value = 0f;
+                sliderComp.Min.Value = 1f;
+                sliderComp.Max.Value = 0f;
+                sliderComp.HandleAnchorMinDrive.Value = handleRect.AnchorMin.ReferenceID;
+                sliderComp.HandleAnchorMaxDrive.Value = handleRect.AnchorMax.ReferenceID;
+
+                LinearMapper2D linearMapper2DComp = slider.AttachComponent<LinearMapper2D>();
+                linearMapper2DComp.Source.Value = sliderComp.Value.ReferenceID;
+                linearMapper2DComp.Target.Value = rightSplit.FindChild(ch => ch.Name.Equals("Scroll Area"), 5)[0].GetComponent<ScrollRect>().NormalizedPosition.ReferenceID;
+                linearMapper2DComp.TargetMax.Value = new float2(0f, 1f);
+            }
 
             // Adjust canvas which adjust everything else
             Canvas canvas = contentSlot.GetComponent<Canvas>();
@@ -177,6 +230,61 @@ public class CustomiseInspector : NeosMod
             });
         }
     }
+
+    // DON'T EVEN THINK ABOUT IT, I HAVE NO WHERE TO STORE THIS AND THIS ONLY WORKS LOCAL HOSTED WORLDS SO IT IS BROKEN
+    // -Panda
+
+    /*
+    // Text color
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<bool> TEXT_RECOLOR_ENABLED = new ModConfigurationKey<bool>("Text color Enabled", "", () => true);
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> TEXT_SELECTION_COLOR = new ModConfigurationKey<color>("Text selction Color", "", () => color.Green);
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> TEXT_PERSISTANT_COLOR = new ModConfigurationKey<color>("Text persistant Color", "", () => color.Orange);
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> TEXT_GRABBED_COLOR = new ModConfigurationKey<color>("Text grabbed Color", "", () => new color(0.5f, 0f, 0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> TEXT_BASE_COLOR = new ModConfigurationKey<color>("Text base Color", "", () => color.Black);
+
+    [HarmonyPatch(typeof(SlotInspector))]
+    class SlotInspectorPatch
+    {
+        [HarmonyPrefix]
+        [HarmonyPatch("UpdateText")]
+        static bool UpdateText(SlotInspector __instance, Slot ____setupRoot, SyncRef<Text> ____slotNameText, RelayRef<SyncRef<Slot>> ____selectionReference)
+        {
+            // TODO: FIX NOT WORKING CORRECTLY
+
+            if (config.GetValue(ENABLED) && __instance.Slot.Name == "Custom Inspector Panel")
+            {
+                __instance.Slot.OrderOffset = ____setupRoot.OrderOffset;
+                ____slotNameText.Target.Content.Value = ____setupRoot.Name;
+                color a = config.GetValue(TEXT_BASE_COLOR);
+                if (!____setupRoot.IsPersistent)
+                {
+                    a = (!____setupRoot.PersistentSelf) ? config.GetValue(TEXT_PERSISTANT_COLOR) : config.GetValue(TEXT_GRABBED_COLOR);
+                }
+
+                if (!____setupRoot.IsActive)
+                {
+                    a = (____setupRoot.ActiveSelf ? a.SetA(0.75f) : a.SetA(0.5f));
+                }
+
+                if (____selectionReference.Target?.Target == ____setupRoot)
+                {
+                    color b = config.GetValue(TEXT_SELECTION_COLOR);
+                    a = MathX.Lerp(in a, in b, 0.75f);
+                }
+
+                ____slotNameText.Target.Color.Value = a;
+
+                return false;
+            }
+
+            return true;
+        }
+    }*/
 
     public static void DoFunny(Slot slot, MaterialProvider material, bool blur = false)
     {

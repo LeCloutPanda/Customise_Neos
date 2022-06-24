@@ -21,13 +21,25 @@ namespace Customise_Modular
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> MAIN_METALLIC = new ModConfigurationKey<float>("Main Metallic Amount", "", () => 0.5f);
         [AutoRegisterConfigKey]
+        private static ModConfigurationKey<color> MAIN_RIM_COLOR = new ModConfigurationKey<color>("Main Rim Color", "", () => new color(0f));
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float> MAIN_RIM_INTENSITY = new ModConfigurationKey<float>("Main Rim Intensity", "", () => 0f);
+        [AutoRegisterConfigKey]
         private static ModConfigurationKey<color> LEFT_RIGHT_ALBEDO = new ModConfigurationKey<color>("Left/Right Albedo Color", "", () => new color(1f, 0.73f, 0.09f, 0.2f));
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> LEFT_RIGHT_METALLIC = new ModConfigurationKey<float>("Left/Right Metallic Amount", "", () => 0.5f);
         [AutoRegisterConfigKey]
+        private static ModConfigurationKey<color> LEFT_RIGHT_RIM_COLOR = new ModConfigurationKey<color>("Left/Right Rim Color", "", () => new color(0f));
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float> LEFT_RIGHT_RIM_INTENSITY = new ModConfigurationKey<float>("Left/Right Rim Intensity", "", () => 0f);
+        [AutoRegisterConfigKey]
         private static ModConfigurationKey<color> CURSOR_ALBEDO = new ModConfigurationKey<color>("Cursor Albedo Color", "", () => new color(1f, 0.73f, 0.09f, 0.2f));
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> CURSOR_METALLIC = new ModConfigurationKey<float>("Cursor Metallic Amount", "", () => 0.5f);
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<color> CURSOR_RIM_COLOR = new ModConfigurationKey<color>("Cursor Rim Color", "", () => new color(0f));
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float> CURSOR_RIM_INTENSITY = new ModConfigurationKey<float>("Cursor Rim Intensity", "", () => 0f);
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> SPAWN_SCALE = new ModConfigurationKey<float>("Spawn Scale Multiplier", "", () => 1);
         [AutoRegisterConfigKey]
@@ -93,7 +105,8 @@ namespace Customise_Modular
                 newMaterial1.Transparent.Value = true;
                 newMaterial1.RenderQueue.Value = 2995;
                 newMaterial1.AlbedoColor.Value = config.GetValue(MAIN_ALBEDO);
-                newMaterial1.RimColor.Value = new color(0f, 0f);
+                newMaterial1.RimColor.Value = config.GetValue(MAIN_RIM_COLOR);
+                newMaterial1.RimPower.Value = config.GetValue(MAIN_RIM_INTENSITY);
                 newMaterial1.Metallic.Value = config.GetValue(MAIN_METALLIC);
 
                 PBS_RimMetallic newMaterial2 = assetsSlot.AttachComponent<PBS_RimMetallic>(true, null);
@@ -104,7 +117,8 @@ namespace Customise_Modular
                 newMaterial2.Transparent.Value = true;
                 newMaterial2.RenderQueue.Value = 2995;
                 newMaterial2.AlbedoColor.Value = config.GetValue(LEFT_RIGHT_ALBEDO);
-                newMaterial2.RimColor.Value = new color(0f, 0f);
+                newMaterial2.RimColor.Value = config.GetValue(LEFT_RIGHT_RIM_COLOR);
+                newMaterial2.RimPower.Value = config.GetValue(LEFT_RIGHT_RIM_INTENSITY);
                 newMaterial2.Metallic.Value = config.GetValue(LEFT_RIGHT_METALLIC);
 
                 PBS_RimMetallic newMaterial3 = assetsSlot.AttachComponent<PBS_RimMetallic>(true, null);
@@ -115,7 +129,8 @@ namespace Customise_Modular
                 newMaterial3.Transparent.Value = true;
                 newMaterial3.RenderQueue.Value = 2995;
                 newMaterial3.AlbedoColor.Value = config.GetValue(CURSOR_ALBEDO);
-                newMaterial3.RimColor.Value = new color(0f, 0f);
+                newMaterial3.RimColor.Value = config.GetValue(CURSOR_RIM_COLOR);
+                newMaterial3.RimPower.Value = config.GetValue(CURSOR_RIM_INTENSITY);
                 newMaterial3.Metallic.Value = config.GetValue(CURSOR_METALLIC);
 
                 DoFunny(frameSlot, newMaterial1);

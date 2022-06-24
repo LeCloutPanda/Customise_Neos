@@ -25,18 +25,26 @@ namespace CustomiseLogixBrowser
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<color> TITLE_COLOR = new ModConfigurationKey<color>("Title Color", "", () => new color(0f));
 
-        // Main Panel
+        //Main Panel
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<color> MAIN_ALBEDO = new ModConfigurationKey<color>("Main Albedo Color", "", () => new color(1f, 0.87f, 0.55f, 0.2f));
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> MAIN_METALIC = new ModConfigurationKey<float>("Main Metalic Amount", "", () => 0.5f);
         [AutoRegisterConfigKey]
+        private static ModConfigurationKey<color> MAIN_RIM_COLOR = new ModConfigurationKey<color>("Main Rim Color", "", () => new color(0f));
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float> MAIN_RIM_INTENSITY = new ModConfigurationKey<float>("Main Rim Intensity", "", () => 0f);
+        [AutoRegisterConfigKey]
         private static ModConfigurationKey<bool> MAIN_BLUR_ENABLED = new ModConfigurationKey<bool>("Main Blur Enabled", "", () => true);
-        // Handle and Header Panel
+        //Handle and Header Panel
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<color> SECONDARY_ALBEDO = new ModConfigurationKey<color>("Secondary Albedo Color", "", () => new color(1f, 0.87f, 0.55f, 0.2f));
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<float> SECONDARY_METALIC = new ModConfigurationKey<float>("Secondary Metalic Amount", "", () => 0.5f);
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<color> SECONDARY_RIM_COLOR = new ModConfigurationKey<color>("Secondary Rim Color", "", () => new color(0f));
+        [AutoRegisterConfigKey]
+        private static ModConfigurationKey<float> SECONDARY_RIM_INTENSITY = new ModConfigurationKey<float>("Secondary Rim Intensity", "", () => 0f);
         [AutoRegisterConfigKey]
         private static ModConfigurationKey<bool> SECONDARY_BLUR_ENABLED = new ModConfigurationKey<bool>("Secondary Blur Enabled", "", () => true);
 
@@ -112,8 +120,10 @@ namespace CustomiseLogixBrowser
                 newMaterial1.Transparent.Value = true;
                 newMaterial1.RenderQueue.Value = 2995;
                 newMaterial1.AlbedoColor.Value = config.GetValue(MAIN_ALBEDO);
-                newMaterial1.RimColor.Value = new color(0f, 0f);
+                newMaterial1.RimColor.Value = config.GetValue(MAIN_RIM_COLOR);
+                newMaterial1.RimPower.Value = config.GetValue(MAIN_RIM_INTENSITY);
                 newMaterial1.Metallic.Value = config.GetValue(MAIN_METALIC);
+
 
                 PBS_RimMetallic newMaterial2 = assetsSlot.AttachComponent<PBS_RimMetallic>(true, null);
                 newMaterial2.OffsetFactor.Value = 1;
@@ -122,7 +132,8 @@ namespace CustomiseLogixBrowser
                 newMaterial2.Transparent.Value = true;
                 newMaterial2.RenderQueue.Value = 2995;
                 newMaterial2.AlbedoColor.Value = config.GetValue(SECONDARY_ALBEDO);
-                newMaterial2.RimColor.Value = new color(0f, 0f);
+                newMaterial2.RimColor.Value = config.GetValue(SECONDARY_RIM_COLOR);
+                newMaterial2.RimPower.Value = config.GetValue(SECONDARY_RIM_INTENSITY);
                 newMaterial2.Metallic.Value = config.GetValue(SECONDARY_METALIC);
 
                 bool enableBlur1 = config.GetValue(MAIN_BLUR_ENABLED);
