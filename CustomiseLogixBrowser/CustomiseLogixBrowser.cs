@@ -14,7 +14,7 @@ namespace CustomiseLogixBrowser
     {
         public override string Name => "Customise-LogixBrowser";
         public override string Author => "LeCloutPanda";
-        public override string Version => "1.1.2";
+        public override string Version => "1.1.3";
 
         public static ModConfiguration config;
 

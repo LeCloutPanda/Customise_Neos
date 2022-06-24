@@ -10,7 +10,7 @@ namespace Customise_Modular
     {
         public override string Name => "Customise-VideoPlayer";
         public override string Author => "LeCloutPanda";
-        public override string Version => "1.1.0";
+        public override string Version => "1.1.2";
 
         public static ModConfiguration config;
 
