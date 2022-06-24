@@ -11,7 +11,7 @@ public class CustomiseInspector : NeosMod
 {
     public override string Name => "Customise-Inspector";
     public override string Author => "LeCloutPanda";
-    public override string Version => "1.1.2";
+    public override string Version => "1.1.3";
 
     public static ModConfiguration config;
 
