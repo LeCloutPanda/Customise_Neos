@@ -5,7 +5,6 @@ using HarmonyLib;
 using NeosModLoader;
 using System;
 using System.Collections.Generic;
-using static FrooxEngine.UIX.Slider<float>;
 
 public class CustomiseInspector : NeosMod
 {
@@ -78,6 +77,9 @@ public class CustomiseInspector : NeosMod
     // Sroller
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<bool> SCROLL_ENABLED = new ModConfigurationKey<bool>("Scroll bar Enabled", "", () => true);
+
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<float> COMP_ATTACH_SPAWN_SCALE = new ModConfigurationKey<float>("COMP_ATTACH Scale Multiplier", "", () => 1);
 
     public override void OnEngineInit()
     {
@@ -229,6 +231,75 @@ public class CustomiseInspector : NeosMod
                 __result.Title = config.GetValue(TITLE_TEXT);
             });
         }
+    }
+
+    [HarmonyPatch(typeof(ComponentAttacher))]
+    class ComponentAttacherPatch
+    {
+        [HarmonyPrefix]
+        [HarmonyPatch("Setup")]
+        static void Prefix(ComponentAttacher __instance)
+        {
+            if (!config.GetValue(ENABLED))
+                return;
+
+            __instance.Slot.Name = "Custom Component Attacher";
+
+            Slot Assets = __instance.Slot.AddSlot("Assets");
+            Assets.Tag = "Customise.Assets";
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch("Setup")]
+        static void Postfix(ComponentAttacher __instance)
+        {
+            if (!config.GetValue(ENABLED) && __instance.Slot.Name != "Custom Component Attacher")
+                return;
+
+            __instance.Slot.GlobalScale = __instance.Slot.GlobalScale * config.GetValue(COMP_ATTACH_SPAWN_SCALE);
+
+            Slot imageSlot = __instance.Slot.FindChild(ch => ch.Name.Equals("Image"), 1);
+            Slot scrollSlot = __instance.Slot.FindChild(ch => ch.Name.Equals("Scroll Area"), 2);
+            Slot assetsSlot = __instance.Slot.FindChild(ch => ch.Tag.Equals("Customise.Assets"));
+
+            UI_UnlitMaterial newMaterial = assetsSlot.AttachComponent<UI_UnlitMaterial>(true, null);
+            newMaterial.OffsetFactor.Value = 0;
+            newMaterial.OffsetUnits.Value = 0;
+            newMaterial.Tint.Value = new color(1f, 1f);
+            newMaterial.ZWrite.Value = ZWrite.Auto;
+
+            imageSlot.GetComponent<Image>().Material.Value = newMaterial.ReferenceID;
+        }
+        /*
+        [HarmonyPostfix]
+        [HarmonyPatch("BuildUI")]
+        static void Postfix(ref ComponentAttacher __instance)
+        {
+            if (!config.GetValue(ENABLED) && __instance.Slot.Name != "Custom Component Attacher")
+                return;
+
+            Slot slot = __instance.Slot;
+            Slot contentSlot = __instance.Slot.FindChild((Slot c) => c.Name == "Content");
+            Slot assetsSlot = __instance.Slot.FindChild((Slot c) => c.Tag == "Customise.Assets");
+
+            foreach (Slot c in contentSlot.Children)
+            {
+                var image = c.GetComponent<Image>();
+
+                color val = image.Tint.Value;
+                color BackColor = new color(0.8f, 0.8f, 0.8f, 1.0f);
+                color FolderColor = new color(1.0f, 1.0f, 0.8f, 1.0f);
+                color newBlueColor = new color(0.8f, 0.8f, 1.0f, 1.0f);
+                color DelegateColor = new color(0.8f, 1.0f, 0.8f, 1.0f);
+                color CancelColor = new color(1f, 0.8f, 0.8f, 1f);
+
+                if (val == BackColor) image.Tint.Value = new color(0f, 1f);
+                else if (val == FolderColor) image.Tint.Value = new color(0f, 1f);
+                else if (val == newBlueColor) image.Tint.Value = new color(0f, 1f);
+                else if (val == DelegateColor) image.Tint.Value = new color(0f, 1f);
+                else if (val == BackColor) image.Tint.Value = new color(0f, 1f);
+            }
+        }*/
     }
 
     // DON'T EVEN THINK ABOUT IT, I HAVE NO WHERE TO STORE THIS AND THIS ONLY WORKS LOCAL HOSTED WORLDS SO IT IS BROKEN
