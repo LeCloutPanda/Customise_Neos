@@ -5,7 +5,6 @@ using HarmonyLib;
 using NeosModLoader;
 using System;
 using System.Collections.Generic;
-using System.Security.Policy;
 
 public class CustomiseInspector : NeosMod
 {
@@ -79,6 +78,8 @@ public class CustomiseInspector : NeosMod
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<bool> SCROLL_ENABLED = new ModConfigurationKey<bool>("Scroll bar enabled", "", () => true);
 
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<bool> COMP_ATTACH_ENABLED = new ModConfigurationKey<bool>("Component Attacher enabled", "", () => true);
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<float> COMP_ATTACH_SPAWN_SCALE = new ModConfigurationKey<float>("Component Attacher spawn scale mulitplier", "", () => 1);
     [AutoRegisterConfigKey]
@@ -257,7 +258,7 @@ public class CustomiseInspector : NeosMod
         [HarmonyPatch("OnAttach")]
         static void Prefix(ComponentAttacher __instance)
         {
-            if (!config.GetValue(ENABLED))
+            if (!config.GetValue(COMP_ATTACH_ENABLED))
                 return;
 
             __instance.Slot.Name = "Custom Component Attacher";
@@ -270,7 +271,7 @@ public class CustomiseInspector : NeosMod
         [HarmonyPatch("OnAttach")]
         static void Postfix(ComponentAttacher __instance)
         {
-            if (!config.GetValue(ENABLED) && __instance.Slot.Name != "Custom Component Attacher")
+            if (!config.GetValue(COMP_ATTACH_ENABLED) && __instance.Slot.Name != "Custom Component Attacher")
                 return;
 
             __instance.Slot.GlobalScale = __instance.Slot.GlobalScale * config.GetValue(COMP_ATTACH_SPAWN_SCALE);
@@ -280,13 +281,16 @@ public class CustomiseInspector : NeosMod
             Slot assetsSlot = __instance.Slot.FindChild(ch => ch.Tag.Equals("Customise.Assets"));
 
             UI_UnlitMaterial newMaterial = assetsSlot.AttachComponent<UI_UnlitMaterial>(true, null);
-            newMaterial.AlphaClip.Value = false;
-            newMaterial.MaskMode.Value = MaskTextureMode.MultiplyAlpha;
-            newMaterial.BlendMode.Value = BlendMode.Transparent;
-            newMaterial.OffsetFactor.Value = 0;
-            newMaterial.OffsetUnits.Value = 0;
+
             newMaterial.Tint.Value = config.GetValue(COMP_ATTACH_BACKGROUND_COLOR);
-            newMaterial.ZWrite.Value = ZWrite.Auto;
+
+            newMaterial.MaskMode.Value = MaskTextureMode.MultiplyAlpha;
+            newMaterial.BlendMode.Value = BlendMode.Alpha;
+            newMaterial.Sidedness.Value = Sidedness.Double;
+            newMaterial.ZWrite.Value = ZWrite.On;
+            newMaterial.ZTest.Value = ZTest.LessOrEqual;
+            newMaterial.OffsetFactor.Value = 1;
+            newMaterial.OffsetUnits.Value = 100;
 
             imageSlot.GetComponent<Image>().Material.Value = newMaterial.ReferenceID;
 
@@ -297,7 +301,7 @@ public class CustomiseInspector : NeosMod
         [HarmonyPatch("BuildUI")]
         static void Postfix(ref ComponentAttacher __instance)
         {
-            if (!config.GetValue(ENABLED) && __instance.Slot.Name != "Custom Component Attacher")
+            if (!config.GetValue(COMP_ATTACH_ENABLED) && __instance.Slot.Name != "Custom Component Attacher")
                 return;
 
             Slot slot = __instance.Slot;
@@ -343,8 +347,8 @@ public class CustomiseInspector : NeosMod
 
     public static void AddBackgroundImage(string url, Slot parent, Canvas canvas)
     {
-        //if (String.IsNullOrEmpty(url.Trim()) || String.IsNullOrWhiteSpace(url.Trim()) || new Uri(url) == null) { Msg("Url is Null/Empty :("); return; }
-        //if (IsUrlValid(url.Trim())) { Msg("Url is not valid :)"); return; }
+        //if (String.IsNullOrEmpty(url.Trim()) || String.IsNullOrWhiteSpace(url.Trim()) || new Uri(url) == null) { Msg("Url is Null/Empty :("); return; } // Brokey kinda don't know
+        //if (IsUrlValid(url.Trim())) { Msg("Url is not valid :)"); return; } // Brokey kinda don't know 
 
         Slot backImageSlot = parent.AddSlot("Background", true);
         Canvas backImageCanvas = backImageSlot.AttachComponent<Canvas>();
