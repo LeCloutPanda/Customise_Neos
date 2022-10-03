@@ -55,7 +55,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Games\SteamLibrary\steamapps\common\NeosVR\Libraries\NeosModLoader.dll</HintPath>
     </Reference>
+    <Reference Include="NML">
+      <HintPath>D:\Games\SteamLibrary\steamapps\common\NeosVR\NML.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Temp.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

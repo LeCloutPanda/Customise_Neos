@@ -5,81 +5,99 @@ using HarmonyLib;
 using NeosModLoader;
 using System;
 using System.Collections.Generic;
+using System.Security.Policy;
 
 public class CustomiseInspector : NeosMod
 {
     public override string Name => "Customise-Inspector";
     public override string Author => "LeCloutPanda";
-    public override string Version => "1.1.3";
+    public override string Version => "1.1.4";
 
     public static ModConfiguration config;
 
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<bool> ENABLED = new ModConfigurationKey<bool>("Enabled", "", () => true);
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<string> TITLE_TEXT = new ModConfigurationKey<string>("Title Text", "", () => "Scene Inspector");
+    private static ModConfigurationKey<string> TITLE_TEXT = new ModConfigurationKey<string>("Title text", "", () => "Scene Inspector");
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> TITLE_COLOR = new ModConfigurationKey<color>("Title Color", "", () => new color(0f));
+    private static ModConfigurationKey<color> TITLE_COLOR = new ModConfigurationKey<color>("Title color", "", () => new color(0f));
 
     //Main Panel
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> MAIN_ALBEDO = new ModConfigurationKey<color>("Main Albedo Color", "", () => new color(1f, 0.87f, 0.55f, 0.2f));
+    private static ModConfigurationKey<color> MAIN_ALBEDO = new ModConfigurationKey<color>("Main Albedo color", "", () => new color(1f, 0.87f, 0.55f, 0.2f));
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<float> MAIN_METALIC = new ModConfigurationKey<float>("Main Metalic Amount", "", () => 0.5f);
+    private static ModConfigurationKey<float> MAIN_METALIC = new ModConfigurationKey<float>("Main Metalic intensity", "", () => 0.5f);
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> MAIN_RIM_COLOR = new ModConfigurationKey<color>("Main Rim Color", "", () => new color(0f));
+    private static ModConfigurationKey<color> MAIN_RIM_COLOR = new ModConfigurationKey<color>("Main Rim color", "", () => new color(0f));
     [AutoRegisterConfigKey]
     private static ModConfigurationKey<float> MAIN_RIM_INTENSITY = new ModConfigurationKey<float>("Main Rim Intensity", "", () => 0f);
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<bool> MAIN_BLUR_ENABLED = new ModConfigurationKey<bool>("Main Blur Enabled", "", () => true);
+    private static ModConfigurationKey<bool> MAIN_BLUR_ENABLED = new ModConfigurationKey<bool>("Main Blur enabled", "", () => true);
     //Handle and Header Panel
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> SECONDARY_ALBEDO = new ModConfigurationKey<color>("Secondary Albedo Color", "", () => new color(1f, 0.87f, 0.55f, 0.2f));
+    private static ModConfigurationKey<color> SECONDARY_ALBEDO = new ModConfigurationKey<color>("Secondary Albedo color", "", () => new color(1f, 0.87f, 0.55f, 0.2f));
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<float> SECONDARY_METALIC = new ModConfigurationKey<float>("Secondary Metalic Amount", "", () => 0.5f);
+    private static ModConfigurationKey<float> SECONDARY_METALIC = new ModConfigurationKey<float>("Secondary Metalic intensity", "", () => 0.5f);
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> SECONDARY_RIM_COLOR = new ModConfigurationKey<color>("Secondary Rim Color", "", () => new color(0f));
+    private static ModConfigurationKey<color> SECONDARY_RIM_COLOR = new ModConfigurationKey<color>("Secondary Rim color", "", () => new color(0f));
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<float> SECONDARY_RIM_INTENSITY = new ModConfigurationKey<float>("Secondary Rim Intensity", "", () => 0f);
+    private static ModConfigurationKey<float> SECONDARY_RIM_INTENSITY = new ModConfigurationKey<float>("Secondary Rim intensity", "", () => 0f);
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<bool> SECONDARY_BLUR_ENABLED = new ModConfigurationKey<bool>("Secondary Blur Enabled", "", () => true);
-    
+    private static ModConfigurationKey<bool> SECONDARY_BLUR_ENABLED = new ModConfigurationKey<bool>("Secondary Blur enabled", "", () => true);
+
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> LEFT_SPLIT_COLOR = new ModConfigurationKey<color>("Left Split Color", "", () => new color(1f, 1f, 0f, 0.2f));
+    private static ModConfigurationKey<color> LEFT_SPLIT_COLOR = new ModConfigurationKey<color>("Left Split color", "", () => new color(1f, 1f, 0f, 0.2f));
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> RIGHT_SPLIT_COLOR = new ModConfigurationKey<color>("Right Split Color", "", () => new color(0f, 1f, 1f, 0.2f));
+    private static ModConfigurationKey<color> RIGHT_SPLIT_COLOR = new ModConfigurationKey<color>("Right Split color", "", () => new color(0f, 1f, 1f, 0.2f));
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<float> SPLIT_RATIO = new ModConfigurationKey<float>("Split Ratio", "", () => 0.4f);
+    private static ModConfigurationKey<float> SPLIT_RATIO = new ModConfigurationKey<float>("Split ratio", "", () => 0.4f);
 
     // Foreground image
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<bool> FOREGROUND_IMAGE_ENABLED = new ModConfigurationKey<bool>("Enable Foreground Image", "", () => true);
+    private static ModConfigurationKey<bool> FOREGROUND_IMAGE_ENABLED = new ModConfigurationKey<bool>("Enable Foreground image", "", () => true);
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<string> FOREGROUND_IMAGE = new ModConfigurationKey<string>("Foreground Image", "", () => "neosdb:///63ef318d96b5d0d0ceba6e04a4e622b1158335cdc67c49e27839132c6f655058.png");
+    private static ModConfigurationKey<string> FOREGROUND_IMAGE = new ModConfigurationKey<string>("Foreground image", "", () => "neosdb:///63ef318d96b5d0d0ceba6e04a4e622b1158335cdc67c49e27839132c6f655058.png");
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> FOREGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Foreground Image Color", "", () => new color(0f, 0f));
+    private static ModConfigurationKey<color> FOREGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Foreground image color", "", () => new color(0f, 0f));
 
     // Background image
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<bool> BACKGROUND_IMAGE_ENABLED = new ModConfigurationKey<bool>("Enable Background Image", "", () => true);
+    private static ModConfigurationKey<bool> BACKGROUND_IMAGE_ENABLED = new ModConfigurationKey<bool>("Enable background image", "", () => true);
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<string> BACKGROUND_IMAGE = new ModConfigurationKey<string>("Background Image", "", () => "neosdb:///63ef318d96b5d0d0ceba6e04a4e622b1158335cdc67c49e27839132c6f655058.png");
+    private static ModConfigurationKey<string> BACKGROUND_IMAGE = new ModConfigurationKey<string>("Background image", "", () => "neosdb:///63ef318d96b5d0d0ceba6e04a4e622b1158335cdc67c49e27839132c6f655058.png");
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> BACKGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Background Image Color", "", () => new color(0f, 0f));
+    private static ModConfigurationKey<color> BACKGROUND_IMAGE_COLOR = new ModConfigurationKey<color>("Background image color", "", () => new color(0f, 0f));
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<float3> BACKGROUND_IMAGE_ROTATION = new ModConfigurationKey<float3>("Background Image Rotation", "", () => new float3(0f, 0f, 0f));
+    private static ModConfigurationKey<float3> BACKGROUND_IMAGE_ROTATION = new ModConfigurationKey<float3>("Background image rotation", "", () => new float3(0f, 0f, 0f));
 
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<float2> CANVAS_SIZE = new ModConfigurationKey<float2>("Canvas Size", "", () => new float2(1000, 2000));
+    private static ModConfigurationKey<float2> CANVAS_SIZE = new ModConfigurationKey<float2>("Canvas size", "", () => new float2(1000, 2000));
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<float> SPAWN_SCALE = new ModConfigurationKey<float>("Spawn Scale Multiplier", "", () => 1);
+    private static ModConfigurationKey<float> SPAWN_SCALE = new ModConfigurationKey<float>("Spawn scale multiplier", "", () => 1);
 
     // Sroller
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<bool> SCROLL_ENABLED = new ModConfigurationKey<bool>("Scroll bar Enabled", "", () => true);
+    private static ModConfigurationKey<bool> SCROLL_ENABLED = new ModConfigurationKey<bool>("Scroll bar enabled", "", () => true);
 
     [AutoRegisterConfigKey]
-    private static ModConfigurationKey<float> COMP_ATTACH_SPAWN_SCALE = new ModConfigurationKey<float>("COMP_ATTACH Scale Multiplier", "", () => 1);
+    private static ModConfigurationKey<float> COMP_ATTACH_SPAWN_SCALE = new ModConfigurationKey<float>("Component Attacher spawn scale mulitplier", "", () => 1);
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<float2> COMP_ATTACH_CANVAS_SIZE = new ModConfigurationKey<float2>("Component Attacher canvas size", "", () => new float2(600, 1000));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> COMP_ATTACH_TEXT_COLOR = new ModConfigurationKey<color>("Component Attacher text Color", "", () => new color(0.8f, 0.8f, 0.8f, 1.0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> COMP_ATTACH_BACKGROUND_COLOR = new ModConfigurationKey<color>("Component Attacher Background Color", "", () => new color(0.8f, 0.8f, 0.8f, 1.0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> COMP_ATTACH_BACK_COLOR = new ModConfigurationKey<color>("Component Attacher back button color", "", () => new color(0.8f, 0.8f, 0.8f, 1.0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> COMP_ATTACH_FOLDER_COLOR = new ModConfigurationKey<color>("Component Attacher folder color", "", () => new color(1.0f, 1.0f, 0.8f, 1.0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> COMP_ATTACH_DELEGATE_COLOR = new ModConfigurationKey<color>("Component Attacher delegate color", "", () => new color(0.8f, 1.0f, 0.8f, 1.0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> COMP_ATTACH_ITEM_COLOR = new ModConfigurationKey<color>("Component Attacher item color", "", () => new color(0.8f, 0.8f, 1.0f, 1.0f));
+    [AutoRegisterConfigKey]
+    private static ModConfigurationKey<color> COMP_ATTACH_CANCEL_COLOR = new ModConfigurationKey<color>("Component Attacher cancel color", "", () => new color(1f, 0.8f, 0.8f, 1f));
+
 
     public override void OnEngineInit()
     {
@@ -131,7 +149,6 @@ public class CustomiseInspector : NeosMod
             newMaterial1.RimPower.Value = config.GetValue(MAIN_RIM_INTENSITY);
             newMaterial1.Metallic.Value = config.GetValue(MAIN_METALIC);
 
-
             PBS_RimMetallic newMaterial2 = assetsSlot.AttachComponent<PBS_RimMetallic>(true, null);
             newMaterial2.OffsetFactor.Value = 1;
             newMaterial2.OffsetUnits.Value = 1;
@@ -150,25 +167,25 @@ public class CustomiseInspector : NeosMod
             DoFunny(handleSlot, newMaterial2, enableBlur2);
             DoFunny(titleMeshSlot, newMaterial2, enableBlur2);
 
-
-            if (config.GetValue(BACKGROUND_IMAGE_ENABLED))
-            {
-                float3 rotaton = config.GetValue(BACKGROUND_IMAGE_ROTATION);
-                AddBackgroundImage(__instance.Slot, contentSlot.GetComponent<Canvas>(), rotaton);
-            }
-
             TextRenderer textRenderer = titleTextSlot.GetComponents<TextRenderer>(null, false)[0];
             textRenderer.Color.Value = config.GetValue(TITLE_COLOR);
-            
+
             Slot imageSlot = contentSlot[0];
 
-            if (config.GetValue(FOREGROUND_IMAGE_ENABLED))
+            var foregroundEnabled = config.GetValue(FOREGROUND_IMAGE_ENABLED);
+            var foregroundUrl = config.GetValue(FOREGROUND_IMAGE);
+            var backgroundEnabled = config.GetValue(BACKGROUND_IMAGE_ENABLED);
+            var backgroundUrl = config.GetValue(BACKGROUND_IMAGE);
+
+            if (foregroundEnabled)
             {
                 Image image = imageSlot.GetComponent<Image>();
                 SpriteProvider spriteProvider = imageSlot.AttachSprite(new Uri(config.GetValue(FOREGROUND_IMAGE)), true, false, true, null);
                 image.Tint.Value = config.GetValue(FOREGROUND_IMAGE_COLOR);
                 image.Sprite.Target = spriteProvider;
             }
+
+            if (backgroundEnabled) AddBackgroundImage(backgroundUrl, __instance.Slot, contentSlot.GetComponent<Canvas>());
 
             Slot leftSplit = imageSlot.FindChild(ch => ch.Name.Equals("Split"), 1);
             leftSplit.Name = "Left Split";
@@ -205,7 +222,7 @@ public class CustomiseInspector : NeosMod
                 });
 
                 Slider<float> sliderComp = slider.AttachComponent<Slider<float>>();
-                sliderComp.SlideDirection.Value = Slider<float>.Direction.Vertical;   
+                sliderComp.SlideDirection.Value = Slider<float>.Direction.Vertical;
                 sliderComp.AnchorOffset.Value = new float2(0.5f, 0f);
                 sliderComp.Value.Value = 0f;
                 sliderComp.Min.Value = 1f;
@@ -237,7 +254,7 @@ public class CustomiseInspector : NeosMod
     class ComponentAttacherPatch
     {
         [HarmonyPrefix]
-        [HarmonyPatch("Setup")]
+        [HarmonyPatch("OnAttach")]
         static void Prefix(ComponentAttacher __instance)
         {
             if (!config.GetValue(ENABLED))
@@ -250,7 +267,7 @@ public class CustomiseInspector : NeosMod
         }
 
         [HarmonyPostfix]
-        [HarmonyPatch("Setup")]
+        [HarmonyPatch("OnAttach")]
         static void Postfix(ComponentAttacher __instance)
         {
             if (!config.GetValue(ENABLED) && __instance.Slot.Name != "Custom Component Attacher")
@@ -263,14 +280,19 @@ public class CustomiseInspector : NeosMod
             Slot assetsSlot = __instance.Slot.FindChild(ch => ch.Tag.Equals("Customise.Assets"));
 
             UI_UnlitMaterial newMaterial = assetsSlot.AttachComponent<UI_UnlitMaterial>(true, null);
+            newMaterial.AlphaClip.Value = false;
+            newMaterial.MaskMode.Value = MaskTextureMode.MultiplyAlpha;
+            newMaterial.BlendMode.Value = BlendMode.Transparent;
             newMaterial.OffsetFactor.Value = 0;
             newMaterial.OffsetUnits.Value = 0;
-            newMaterial.Tint.Value = new color(1f, 1f);
+            newMaterial.Tint.Value = config.GetValue(COMP_ATTACH_BACKGROUND_COLOR);
             newMaterial.ZWrite.Value = ZWrite.Auto;
 
             imageSlot.GetComponent<Image>().Material.Value = newMaterial.ReferenceID;
+
+            __instance.Slot.GetComponent<Canvas>().Size.Value = config.GetValue(COMP_ATTACH_CANVAS_SIZE);
         }
-        /*
+
         [HarmonyPostfix]
         [HarmonyPatch("BuildUI")]
         static void Postfix(ref ComponentAttacher __instance)
@@ -289,73 +311,21 @@ public class CustomiseInspector : NeosMod
                 color val = image.Tint.Value;
                 color BackColor = new color(0.8f, 0.8f, 0.8f, 1.0f);
                 color FolderColor = new color(1.0f, 1.0f, 0.8f, 1.0f);
-                color newBlueColor = new color(0.8f, 0.8f, 1.0f, 1.0f);
+                color itemColor = new color(0.8f, 0.8f, 1.0f, 1.0f);
                 color DelegateColor = new color(0.8f, 1.0f, 0.8f, 1.0f);
                 color CancelColor = new color(1f, 0.8f, 0.8f, 1f);
 
-                if (val == BackColor) image.Tint.Value = new color(0f, 1f);
-                else if (val == FolderColor) image.Tint.Value = new color(0f, 1f);
-                else if (val == newBlueColor) image.Tint.Value = new color(0f, 1f);
-                else if (val == DelegateColor) image.Tint.Value = new color(0f, 1f);
-                else if (val == BackColor) image.Tint.Value = new color(0f, 1f);
+                if (val == BackColor) image.Tint.Value = config.GetValue(COMP_ATTACH_BACK_COLOR );
+                else if (val == FolderColor) image.Tint.Value = config.GetValue(COMP_ATTACH_FOLDER_COLOR);
+                else if (val == itemColor) image.Tint.Value = config.GetValue(COMP_ATTACH_DELEGATE_COLOR);
+                else if (val == DelegateColor) image.Tint.Value = config.GetValue(COMP_ATTACH_ITEM_COLOR);
+                else if (val == CancelColor) image.Tint.Value = config.GetValue(COMP_ATTACH_CANCEL_COLOR);
+
+                var text = c[0].GetComponent<Text>().Color.Value = config.GetValue(COMP_ATTACH_TEXT_COLOR);
             }
-        }*/
+        }
     }
 
-    // DON'T EVEN THINK ABOUT IT, I HAVE NO WHERE TO STORE THIS AND THIS ONLY WORKS LOCAL HOSTED WORLDS SO IT IS BROKEN
-    // -Panda
-
-    /*
-    // Text color
-    [AutoRegisterConfigKey]
-    private static ModConfigurationKey<bool> TEXT_RECOLOR_ENABLED = new ModConfigurationKey<bool>("Text color Enabled", "", () => true);
-    [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> TEXT_SELECTION_COLOR = new ModConfigurationKey<color>("Text selction Color", "", () => color.Green);
-    [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> TEXT_PERSISTANT_COLOR = new ModConfigurationKey<color>("Text persistant Color", "", () => color.Orange);
-    [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> TEXT_GRABBED_COLOR = new ModConfigurationKey<color>("Text grabbed Color", "", () => new color(0.5f, 0f, 0f));
-    [AutoRegisterConfigKey]
-    private static ModConfigurationKey<color> TEXT_BASE_COLOR = new ModConfigurationKey<color>("Text base Color", "", () => color.Black);
-
-    [HarmonyPatch(typeof(SlotInspector))]
-    class SlotInspectorPatch
-    {
-        [HarmonyPrefix]
-        [HarmonyPatch("UpdateText")]
-        static bool UpdateText(SlotInspector __instance, Slot ____setupRoot, SyncRef<Text> ____slotNameText, RelayRef<SyncRef<Slot>> ____selectionReference)
-        {
-            // TODO: FIX NOT WORKING CORRECTLY
-
-            if (config.GetValue(ENABLED) && __instance.Slot.Name == "Custom Inspector Panel")
-            {
-                __instance.Slot.OrderOffset = ____setupRoot.OrderOffset;
-                ____slotNameText.Target.Content.Value = ____setupRoot.Name;
-                color a = config.GetValue(TEXT_BASE_COLOR);
-                if (!____setupRoot.IsPersistent)
-                {
-                    a = (!____setupRoot.PersistentSelf) ? config.GetValue(TEXT_PERSISTANT_COLOR) : config.GetValue(TEXT_GRABBED_COLOR);
-                }
-
-                if (!____setupRoot.IsActive)
-                {
-                    a = (____setupRoot.ActiveSelf ? a.SetA(0.75f) : a.SetA(0.5f));
-                }
-
-                if (____selectionReference.Target?.Target == ____setupRoot)
-                {
-                    color b = config.GetValue(TEXT_SELECTION_COLOR);
-                    a = MathX.Lerp(in a, in b, 0.75f);
-                }
-
-                ____slotNameText.Target.Color.Value = a;
-
-                return false;
-            }
-
-            return true;
-        }
-    }*/
 
     public static void DoFunny(Slot slot, MaterialProvider material, bool blur = false)
     {
@@ -371,22 +341,24 @@ public class CustomiseInspector : NeosMod
         }
     }
 
-    public static void AddBackgroundImage(Slot parent, Canvas canvas, float3 newRotation)
+    public static void AddBackgroundImage(string url, Slot parent, Canvas canvas)
     {
+        //if (String.IsNullOrEmpty(url.Trim()) || String.IsNullOrWhiteSpace(url.Trim()) || new Uri(url) == null) { Msg("Url is Null/Empty :("); return; }
+        //if (IsUrlValid(url.Trim())) { Msg("Url is not valid :)"); return; }
+
         Slot backImageSlot = parent.AddSlot("Background", true);
         Canvas backImageCanvas = backImageSlot.AttachComponent<Canvas>();
         Image backImageImage = backImageSlot.AttachComponent<Image>();
         ValueCopy<float2> backImageValueCopy = backImageSlot.AttachComponent<ValueCopy<float2>>();
 
         backImageSlot.LocalPosition = new float3(0, 0, 0.011f);
-        floatQ rotation = floatQ.Euler(newRotation);
+        floatQ rotation = floatQ.Euler(config.GetValue(BACKGROUND_IMAGE_ROTATION));
         backImageSlot.LocalRotation = rotation;
         backImageSlot.LocalScale = canvas.Slot.LocalScale;
 
         backImageValueCopy.Source.Value = canvas.Size.ReferenceID;
         backImageValueCopy.Target.Value = backImageCanvas.Size.ReferenceID;
-
-        backImageImage.Sprite.Target = backImageImage.Slot.AttachSprite(new Uri(config.GetValue(BACKGROUND_IMAGE)), true, false, true, null);
+        backImageImage.Sprite.Target = backImageImage.Slot.AttachSprite(new Uri(url), true, false, true, null);
         backImageImage.Tint.Value = config.GetValue(BACKGROUND_IMAGE_COLOR);
     }
 }
