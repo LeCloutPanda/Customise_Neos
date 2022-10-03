@@ -8,7 +8,7 @@
 
 # Avaliable Mods
 [Customise-Inspector](https://github.com/LeCloutPanda/Customise/releases/download/v1.1.3%2Fv1.1.2/CustomiseInspector.dll)
-Sha256: 168464525b2a05e6857d494dd2b53d1a0b3cc0f4acbb801210de0af570a4bff4
+Sha256: 6f6117f37e83e2a5e9e1c84185dd18f9060b0581dc96a8d8eca4a7483f106234
 [Customise-LogixBrowser](https://github.com/LeCloutPanda/Customise/releases/download/v1.1.3%2Fv1.1.2/CustomiseLogixBrowser.dll)
 Sha256: 2d66cb051c1e0cb8e9c2ccefdf05e07ff2b9d1f62e103fc88651287ca905e0aa
 [Customise-VideoPlayer](https://github.com/LeCloutPanda/Customise/releases/download/v1.1.3%2Fv1.1.2/CustomiseVideoPlayer.dll)
